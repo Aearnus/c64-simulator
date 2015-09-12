@@ -4,10 +4,9 @@
 
 #define WINDOWWIDTH 800
 #define WINDOWHEIGHT 600
+
 #define to255(x) floor(x*(255/65535))
 #define to65535(x) floor(x*(65535/255))
-#define setForeground(r,g,b) (XSetForeground(display,graphics_context,colorFromRGB(colormap,display,r,g,b).pixel))
-
 XColor colorFromRGB(Colormap colormap, Display* display, int red, int green, int blue) {
     XColor color;
     color.red = to65535(red);
@@ -18,10 +17,14 @@ XColor colorFromRGB(Colormap colormap, Display* display, int red, int green, int
     return color;
 }
 
+#define setForeground(r,g,b) (XSetForeground(display,graphics_context,colorFromRGB(colormap,display,r,g,b).pixel))
+#define fillRectangle(x,y,w,h) XFillRectangle(display,window,graphics_context,x,y,w,h)
 void draw(Display* display, Window window, GC graphics_context, Colormap colormap) {
-    setForeground(55,55,55);
-    XFillRectangle(display, window, graphics_context,
-                   50, 50, 700, 500);
+    setForeground(164, 164, 255); //light outer purple and text color
+    fillRectangle(0, 0, WINDOWWIDTH, WINDOWHEIGHT);
+    
+    setForeground(64, 64, 228); //dark inner purple
+    fillRectangle(50, 50, 700, 500);
 }
 
 int main() {
