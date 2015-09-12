@@ -1,2 +1,2 @@
 all:
-	gcc -lm -lX11 xlibtest.c
+	gcc -lm -lX11 main.c
