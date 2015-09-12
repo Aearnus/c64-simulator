@@ -1,10 +1,21 @@
 #include <X11/Xlib.h>
 #include <unistd.h>
 #include <math.h>
+#include <string.h>
 
 #define WINDOWWIDTH 1366
+#define WIDTHMARGIN 50
 #define WINDOWHEIGHT 768
+#define HEIGHTMARGIN 50
+//this is the original size, spare resolution changes
+//6 colored pixels, two on the right for spacing
+#define CHARWIDTH 8
+//7 colored pixels, one on the bottom for spacing
+#define CHARHEIGHT 8
+#define CHARSPERROW ((int)(WINDOWWIDTH/CHARWIDTH))
+#define CHARSPERCOLUMN ((int)(WINDOWHEIGHT/CHARHEIGHT))
 
+//helper functions
 #define to255(x) floor(x*(255/65535))
 #define to65535(x) floor(x*(65535/255))
 XColor colorFromRGB(Colormap colormap, Display* display, int red, int green, int blue) {
@@ -17,6 +28,17 @@ XColor colorFromRGB(Colormap colormap, Display* display, int red, int green, int
     return color;
 }
 
+char text[CHARSPERCOLUMN][CHARSPERROW];
+void _writeFlowingText(Display* display, Window window, GC graphics_context) {
+    int i; //iterate through the text array
+    for (i = 0; i < CHARSPERCOLUMN; i++) {
+        XDrawString(display, window, graphics_context,
+                    WIDTHMARGIN + 10, HEIGHTMARGIN + CHARHEIGHT + (i * CHARHEIGHT),
+                    text[i], strlen(text[i]));
+    }
+}
+
+#define writeFlowingText() _writeFlowingText(display,window,graphics_context)
 #define setForeground(r,g,b) (XSetForeground(display,graphics_context,colorFromRGB(colormap,display,r,g,b).pixel))
 #define fillRectangle(x,y,w,h) XFillRectangle(display,window,graphics_context,x,y,w,h)
 void draw(Display* display, Window window, GC graphics_context, Colormap colormap) {
@@ -24,7 +46,12 @@ void draw(Display* display, Window window, GC graphics_context, Colormap colorma
     fillRectangle(0, 0, WINDOWWIDTH, WINDOWHEIGHT);
     
     setForeground(65, 64, 228); //dark inner purple
-    fillRectangle(50, 50, WINDOWWIDTH - 100, WINDOWHEIGHT - 100);
+    fillRectangle(WIDTHMARGIN, HEIGHTMARGIN, WINDOWWIDTH - 2 * WIDTHMARGIN, WINDOWHEIGHT - 2 * HEIGHTMARGIN);
+
+    setForeground(164, 163, 255); //light purple text
+    strcpy(text[0], "*** COMMODORE 64 ***"); //need to use strcpy instead of 
+    strcpy(text[1], "65335 BYTES FREE"); //just indexing because... strings? i guess?
+    writeFlowingText();
 }
 
 int main() {
